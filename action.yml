@@ -1,0 +1,35 @@
+name: 'XSDHub XML & XSD Validate'
+description: 'Validate XML files for well-formedness and against an XSD schema on the runner. Line annotations, job summary, nothing uploaded.'
+author: 'XSDHub'
+branding:
+  icon: 'check-square'
+  color: 'orange'
+inputs:
+  files:
+    description: 'XML files or glob patterns to check, one per line or separated by spaces (supports **).'
+    required: true
+  schema:
+    description: 'Path to an XSD 1.0 schema. Leave empty to check well-formedness only.'
+    required: false
+    default: ''
+  fail-on-error:
+    description: 'Fail the step when a file is invalid (true/false).'
+    required: false
+    default: 'true'
+outputs:
+  checked:
+    description: 'Number of files checked.'
+    value: ${{ steps.validate.outputs.checked }}
+  failed:
+    description: 'Number of files that failed.'
+    value: ${{ steps.validate.outputs.failed }}
+runs:
+  using: 'composite'
+  steps:
+    - id: validate
+      shell: bash
+      env:
+        INPUT_FILES: ${{ inputs.files }}
+        INPUT_SCHEMA: ${{ inputs.schema }}
+        INPUT_FAIL_ON_ERROR: ${{ inputs.fail-on-error }}
+      run: bash "${{ github.action_path }}/validate.sh"

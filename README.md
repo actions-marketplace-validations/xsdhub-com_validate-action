@@ -13,7 +13,7 @@ jobs:
   xml:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: xsdhub-com/validate-action@v1
         with:
           files: |

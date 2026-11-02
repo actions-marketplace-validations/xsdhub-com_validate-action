@@ -1,5 +1,5 @@
 name: 'XSDHub XML & XSD Validate'
-description: 'Validate XML files for well-formedness and against an XSD schema on the runner. Line annotations, job summary, nothing uploaded.'
+description: 'Validate XML well-formedness and XSD on the runner. Line annotations and fix guides; no files uploaded.'
 author: 'XSDHub'
 branding:
   icon: 'check-square'

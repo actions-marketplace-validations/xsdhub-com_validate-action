@@ -1,0 +1,33 @@
+name: test
+on: [push, pull_request, workflow_dispatch]
+jobs:
+  test:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Valid file against schema passes
+        uses: ./
+        with:
+          files: test/valid/*.xml
+          schema: test/schema.xsd
+      - name: Schema errors are reported
+        id: schema
+        uses: ./
+        with:
+          files: test/invalid/order-schema.xml
+          schema: test/schema.xsd
+          fail-on-error: 'false'
+      - name: Syntax errors are reported
+        id: syntax
+        uses: ./
+        with:
+          files: test/invalid/order-syntax.xml
+          fail-on-error: 'false'
+      - name: Check outputs
+        shell: bash
+        run: |
+          test "${{ steps.schema.outputs.failed }}" = "1"
+          test "${{ steps.syntax.outputs.failed }}" = "1"

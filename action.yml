@@ -1,5 +1,5 @@
 name: 'XSDHub XML & XSD Validate'
-description: 'Validate XML well-formedness and XSD on the runner. Line annotations and fix guides; no files uploaded.'
+description: 'Validate XML well-formedness and XSD on the runner. Line annotations and optional saved invoice checks.'
 author: 'XSDHub'
 branding:
   icon: 'check-square'
@@ -16,6 +16,22 @@ inputs:
     description: 'Fail the step when a file is invalid (true/false).'
     required: false
     default: 'true'
+  save-for-rule-changes:
+    description: 'Save matching invoice XML on XSDHub for automatic checks after official rule changes. Requires explicit true and Pro or Team.'
+    required: false
+    default: 'false'
+  invoice-standard:
+    description: 'Rule standard for saved invoices: en16931, xrechnung, facturx, ksef, ro or hr.'
+    required: false
+    default: ''
+  xsdhub-api-key:
+    description: 'Existing XSDHub Pro or Team API key. Pass a GitHub Actions secret.'
+    required: false
+    default: ''
+  project-id:
+    description: 'Optional existing XSDHub project in your workspace.'
+    required: false
+    default: ''
 outputs:
   checked:
     description: 'Number of files checked.'
@@ -32,4 +48,8 @@ runs:
         INPUT_FILES: ${{ inputs.files }}
         INPUT_SCHEMA: ${{ inputs.schema }}
         INPUT_FAIL_ON_ERROR: ${{ inputs.fail-on-error }}
+        INPUT_SAVE_FOR_RULE_CHANGES: ${{ inputs.save-for-rule-changes }}
+        INPUT_INVOICE_STANDARD: ${{ inputs.invoice-standard }}
+        INPUT_XSDHUB_API_KEY: ${{ inputs.xsdhub-api-key }}
+        INPUT_PROJECT_ID: ${{ inputs.project-id }}
       run: bash "${{ github.action_path }}/validate.sh"

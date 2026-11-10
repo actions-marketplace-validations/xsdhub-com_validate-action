@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Validates XML with xmllint on the runner and reports GitHub annotations.
-# No file content leaves the runner.
+# Invoice content is uploaded only with explicit save-for-rule-changes consent.
 set -uo pipefail
 shopt -s nullglob
 shopt -s globstar 2>/dev/null || true  # bash 3.2 (macOS) has no globstar; ** then acts like *
@@ -77,6 +77,10 @@ if [ -n "${INPUT_SCHEMA}" ]; then
   mode="XSD (${INPUT_SCHEMA})"
 fi
 
+if [[ "${INPUT_SAVE_FOR_RULE_CHANGES:-false}" != "false" && "${INPUT_SAVE_FOR_RULE_CHANGES:-false}" != "true" ]]; then
+  echo "::error::save-for-rule-changes must be true or false."
+  exit 1
+fi
 checked=0; failed=0
 summary_rows=""
 for f in "${files[@]}"; do
@@ -121,8 +125,15 @@ if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
     echo "|---|---|---|"
     printf '%s' "$summary_rows"
     echo
-    echo "Checked locally on the runner; no files were uploaded. Need XSD 1.1, Schematron or EN 16931 invoice rules? [XSDHub](https://xsdhub.com/)"
+    echo "XML and XSD checks ran on the runner. Invoice saving requires the separate save-for-rule-changes choice. Need XSD 1.1, Schematron or EN 16931 invoice rules? [XSDHub](https://xsdhub.com/)"
   } >> "$GITHUB_STEP_SUMMARY"
+fi
+
+if [ "${INPUT_SAVE_FOR_RULE_CHANGES:-false}" = "true" ]; then
+  python3 "$(dirname "$0")/save-invoices.py" "${files[@]}" || exit 1
+  if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
+    echo "You chose to save these invoices on XSDHub. Future official rule changes trigger new checks. Read differences and delete saved invoices in [your rule tracker](https://xsdhub.com/e-invoicing#rule-tracker)." >> "$GITHUB_STEP_SUMMARY"
+  fi
 fi
 
 echo "XSDHub validate: $checked checked, $failed failed ($mode)."

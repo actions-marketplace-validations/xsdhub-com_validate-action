@@ -84,3 +84,23 @@ Messages are libxml2's own text. Guides for the common causes: [XSDHub validatio
 ## License
 
 MIT
+
+## DORA register checks
+
+Use `mode: dora` for one EBA DORA 4.0 register: one submission ZIP, the complete CSV table set (one glob per line), or one DNB 2026 workbook. This mode sends the register to the existing XSDHub validation API only when `allow-upload: true`. Its quotas use your existing optional API key. The default XML/XSD mode continues to run on the runner.
+
+```yaml
+- uses: xsdhub-com/validate-action@v1
+  with:
+    mode: dora
+    files: reports/register.zip
+    dora-profile: eba-4.0
+    allow-upload: 'true'
+    xsdhub-api-key: ${{ secrets.XSDHUB_API_KEY }}
+```
+
+For a DNB workbook, choose `dora-profile: dnb-4.0` and an `.xlsx` file. Only enable this workflow for a repository authorised to send the register. No register, source values or detailed report is written to logs or artifacts by the Action. Avoid committing private registers. The summary contains counts and a link to the browser validator.
+
+The API and browser use the same parser and key/reference checks. Limits: 2 MiB of input, 1,000 rows per table and a 15-second DORA worker timeout. Missing tables or truncated results fail the check. `checked` is 1 for the complete register request; `failed` is 0 or 1. `fail-on-error: 'false'` allows findings but never hides transport/input failures. DORA mode cannot be combined with schema validation or invoice saving.
+
+A passing result means the implemented keys and references passed, with all 14 tables present. Correct the register, then run your authority’s filing tests for the remaining DORA rules and acceptance. For registers above these bounds, check each entity separately; streaming larger tables is tracked as the next parser extension. [Try the same check in your browser](https://xsdhub.com/standards/dora-roi).

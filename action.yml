@@ -1,5 +1,5 @@
 name: 'XSDHub XML & XSD Validate'
-description: 'Validate XML well-formedness and XSD on the runner. Line annotations and optional saved invoice checks.'
+description: 'Validate XML/XSD on your runner, or check DORA register keys and references with explicit upload consent.'
 author: 'XSDHub'
 branding:
   icon: 'check-square'
@@ -8,6 +8,18 @@ inputs:
   files:
     description: 'XML files or glob patterns to check, one per line or separated by spaces (supports **).'
     required: true
+  mode:
+    description: 'xml (runner XML/XSD checks) or dora (one register via XSDHub with explicit upload consent).'
+    required: false
+    default: 'xml'
+  dora-profile:
+    description: 'DORA reporting format: eba-4.0 for ZIP/CSV or dnb-4.0 for the DNB 2026 XLSX.'
+    required: false
+    default: 'eba-4.0'
+  allow-upload:
+    description: 'Explicit permission for a transient DORA server check. No invoice saving.'
+    required: false
+    default: 'false'
   schema:
     description: 'Path to an XSD 1.0 schema. Leave empty to check well-formedness only.'
     required: false
@@ -45,6 +57,9 @@ runs:
     - id: validate
       shell: bash
       env:
+        INPUT_MODE: ${{ inputs.mode }}
+        INPUT_DORA_PROFILE: ${{ inputs.dora-profile }}
+        INPUT_ALLOW_UPLOAD: ${{ inputs.allow-upload }}
         INPUT_FILES: ${{ inputs.files }}
         INPUT_SCHEMA: ${{ inputs.schema }}
         INPUT_FAIL_ON_ERROR: ${{ inputs.fail-on-error }}

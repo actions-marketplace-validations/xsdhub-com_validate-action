@@ -5,6 +5,12 @@ set -uo pipefail
 shopt -s nullglob
 shopt -s globstar 2>/dev/null || true  # bash 3.2 (macOS) has no globstar; ** then acts like *
 
+case "${INPUT_MODE:-xml}" in
+  dora) exec python3 "$(dirname "$0")/dora.py" ;;
+  xml) ;;
+  *) echo "::error::Choose mode xml or dora."; exit 2 ;;
+esac
+
 GUIDES="https://xsdhub.com/learn"
 
 if ! command -v xmllint >/dev/null 2>&1; then
